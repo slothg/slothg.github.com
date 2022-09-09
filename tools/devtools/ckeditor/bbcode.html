@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>BBCode-CKEditor</title>
+        <!-- Make sure the path to CKEditor is correct. -->
+        <script src="./ckeditor.js"></script>
+        <style type="text/css">
+body {
+    margin: 0 auto;
+}
+
+#wrap {
+    width: 95%;
+    position: relative;
+    margin: 20px;
+    height: 500px;
+}
+
+#editables {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 47%;
+    height: 100%;
+    padding: 5px 10px;
+}
+
+#buttons {
+    margin:0 auto;
+    font-size: 30px;
+    width: 35px;
+}
+
+#trans2Input {
+    position: absolute;
+    top:50%;
+}
+
+#preview {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 47%;
+    height: 100%;
+}
+
+#console {
+    width: 100%;
+    height: 540px;
+    border: solid 3px #555;
+    overflow: auto;
+    color: #000;
+    transition: border-color 0.5s;
+    font-family: Monaco, monospace;
+    font-size: 13px;
+    white-space: normal;
+}
+
+#console.updated {
+    border-color: #0B0;
+}
+        </style>
+    </head>
+
+    <body>
+        <div id="wrap">
+            <div id="editables">
+                <textarea id="editorbbcode" name="editorbbcode" rows="10" cols="80" >
+                </textarea>
+            </div>
+            <div id="buttons">
+                <!--<button id="trans2Out">&gt;</button>-->
+                <button id="trans2Input">&lt;</button>
+            </div>
+            <div id="preview">
+                <h3 for="console">BBCode Output: </h3>
+                <textarea id="console">
+                </textarea>
+            </div>
+        </div>
+
+        <script>
+
+(function() {
+    'use strict';
+
+    // Replace the editorbbcode with an CKEditor
+    // instance, using the "bbcode" plugin, customizing some of the
+    // editor configuration options to fit BBCode environment.
+    var editor = CKEDITOR.replace( 'editorbbcode', {
+        language: 'zh-cn',
+        height: 500,
+        // Add plugins providing functionality popular in BBCode environment.
+        extraPlugins: 'bbcode',
+        // Remove unused plugins.
+        //removePlugins: 'filebrowser,format,horizontalrule,pastetext,pastefromword,scayt,showborders,stylescombo,table,tabletools,wsc',
+        removePlugins: 'bidi,dialogadvtab,div,filebrowser,flash,forms,horizontalrule,iframe,justify,liststyle,pagebreak,showborders,stylescombo,table,tabletools,templates',
+        // Remove unused buttons.
+        removeButtons: 'Anchor,BGColor,Font,Strike,Subscript,Superscript',
+        // Width and height are not supported in the BBCode format, so object resizing is disabled.
+        disableObjectResizing: true,
+        toolbar: [
+            ['Source', '-', 'NewPage', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'],
+            ['spellchecker'],
+            ['Find', 'Replace', '-', 'SelectAll', 'RemoveFormat'],
+            // 超链接 取消超链接 图片
+            ['Link', 'Unlink', 'Image'],
+            '/',
+            // 字体大小 加粗 斜体 下划线
+            ['FontSize', 'Bold', 'Italic', 'Underline'],
+            // 文本颜色  表情  特殊字符 全屏
+            ['TextColor', '-', 'Smiley', 'SpecialChar', '-', 'Maximize']
+        ],
+        // Define font sizes in percent values.
+        // fontSize_sizes: "30/30%;50/50%;100/100%;120/120%;150/150%;200/200%;300/300%",
+        fontSize_sizes:'12/12%;13/13%;14/14%;15/15%/16/16%;17/17%;18/18%;19/19%;20/20%;21/21%;22/22%;24/24%;26/26%;28/28%;36/36%;48/48%;72/72%',
+        // Strip CKEditor smileys to those commonly used in BBCode.
+        smiley_images: [
+            'regular_smile.png', 'sad_smile.png', 'wink_smile.png', 'teeth_smile.png', 'tongue_smile.png',
+            'embarrassed_smile.png', 'omg_smile.png', 'whatchutalkingabout_smile.png', 'angel_smile.png',
+            'shades_smile.png', 'cry_smile.png', 'kiss.png'
+        ],
+        smiley_descriptions: [
+            'smiley', 'sad', 'wink', 'laugh', 'cheeky', 'blush', 'surprise',
+            'indecision', 'angel', 'cool', 'crying', 'kiss'
+        ],
+    });
+
+    function updatePreview() {
+        var consoleEl = CKEDITOR.document.getById( 'console' );
+        consoleEl.addClass( 'updated' );
+        setTimeout( function() { consoleEl.removeClass( 'updated' ); }, 500 );
+        // // IE needs <br>, it doesn't even understand new lines.
+        // var bbcodeStr = editor.getData().replace( /\n\r?/g, '<br>' ).replace(/(?:\[(\/{0,1}[a-zA-Z0-9\s\=]{1,16})\])/ig, '&lt;$1&gt;');      // for pre
+        var bbcodeStr = editor.getData().replace( /\n\r?/g, '\n' ).replace(/(?:\[(\/{0,1}[a-zA-Z0-9\=\#]{1,16})\])/ig, '<$1>');
+        // consoleEl.setHtml( bbcodeStr );     // for pre
+        consoleEl.$.value = bbcodeStr;
+    }
+
+    function checkUpdatePreview() {
+        setTimeout( function() {
+            if ( editor.checkDirty() ) {
+                updatePreview();
+                editor.resetDirty();
+            }
+        }, 0 );
+    }
+
+    editor.on( 'instanceReady', updatePreview );
+    editor.on( 'key', checkUpdatePreview );
+    editor.on( 'selectionChange', checkUpdatePreview );
+
+    document.getElementById( 'trans2Input' ).addEventListener('click', onTrans2Input);
+    // CKEDITOR.document.getById( 'console' ).addEventListener('click', onTrans2Input);
+    // $('#console').click(onTrans2Input);
+    function onTrans2Input() {
+        var consoleEl = CKEDITOR.document.getById( 'console' );
+        // var consoleText = consoleEl.$.innerText;     // for pre
+        var consoleText = consoleEl.$.value;
+        consoleText = consoleText.replace( /\<br\>/g, '\n' ).replace(/(?:\<(\/{0,1}[a-zA-Z0-9\=\#]{1,16})\>)/ig, '[$1]')
+        editor.setData(consoleText);
+    }
+})();
+        </script>
+    </body>
+</html>

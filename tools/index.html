@@ -1,0 +1,221 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<link rel="stylesheet" href="./libs/bootstrap-4.5.0/css/bootstrap.min.css"/>
+<script type="text/javascript" src="./libs/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="./libs/jquery.qrcode.min.js"></script>
+<script type="text/javascript" src="./libs/bootstrap-4.5.0/js/bootstrap.min.js"></script>
+
+<!-- <script id="config" type="text/javascript" src="./configs/config.js"></script> -->
+
+<style type="text/css">
+a {
+	text-decoration: none;
+}
+
+a:active {
+	text-decoration: blink
+}
+
+a:hover {
+	text-decoration: underline;
+	color: red
+}
+
+a:visited {
+	text-decoration: none;
+	color: green
+}
+
+.nav {
+	height: 30px;
+}
+
+.nav li {
+	display: inline-block;
+	width: 100px;
+	height: 30px;
+	line-height: 30px;
+	float: left;
+	cursor: pointer;
+	text-align: center;
+	background: #ddd;
+	border: solid 1px yellow;
+	border-bottom-width: 0px;
+}
+
+.nav li.cur {
+	color: #fff;
+	background: #f60
+}
+
+.con {
+	display: none;
+	padding-top: 10px;
+}
+
+.con ul li {
+	margin-top: 5px;
+}
+
+.desc{
+	color:#D6D6D6;
+	margin-left:50px;
+}
+</style>
+<script>
+	Array.prototype.insert = function (index, item) {
+		this.splice(index, 0, item);
+	}
+</script>
+
+<script>
+	//显示图片
+	function showPic(divId, url, width, height, event) {
+		$('#code').qrcode({
+			width : width,
+			height : height,
+			text : url
+		});
+		var evt = event || window.event;
+		var x = evt.pageX + 20;
+		var y = evt.pageY;
+		if (evt.pageY > 600) {
+			y -= height + 10;
+		}
+		document.getElementById(divId).style.left = x + "px";
+		document.getElementById(divId).style.top = y + "px";
+		document.getElementById(divId).style.display = "block";
+	}
+	function hiddenPic(divId) {
+		document.getElementById(divId).innerHTML = "";
+		document.getElementById(divId).style.display = "none";
+	}
+</script>
+
+
+<script>
+	function createNav() {
+		$.each(conf, function(idx, val) {
+			var li = $("<li>");
+			li.html(val.title);
+
+			var contentDiv = $("<div>");
+			contentDiv.addClass("con");
+			var contentDivUl = $("<ul>");
+			contentDivUl.css("list-style", "none");
+			contentDiv.append(contentDivUl);
+
+			// 根据环境配置，自动生成items。
+			if (val.title == 'apps') {
+				val.items = [];
+				$.each(val.envs, function (envIdx, env) {
+					$.each(val.files, function (filesIdx, fileItem) {
+						var item = {
+							text: `${env.name}-${fileItem.ctype}-${fileItem.ftype}`,
+							link: `${env.url}/${fileItem.ftype}/${fileItem.ctype}.${fileItem.ftype}`,
+							qrcode: true,
+						};
+						if (fileItem.ftype == 'ipa') {
+							item.qrcode_text =
+								`itms-services\://?action\=download-manifest&url\=${env.url}/${fileItem.ftype}/${fileItem.ctype}.plist`;
+							item.desc = item.qrcode_text;
+						} else {
+							item.qrcode_text = item.link;
+						}
+						val.items.push(item);
+					});
+				});
+			} else if (val.title == 'docs') {
+				val.items = [];
+				$.each(val.doc, function (envIdx, doc) {
+					val.items.push({
+						text : `${doc.text}`,
+						link : `./docs/${doc.text}/${doc.subpath ? doc.subpath : 'index.html'}`,
+					});
+				});
+			}
+
+
+			$.each(val.items, function(idx2, val2) {
+				var contentDivUlLi = $("<li>");
+				var contentDivUlLiSpan = $("<span>");
+				contentDivUlLi.append(contentDivUlLiSpan);
+				var a = $("<a>");
+				contentDivUlLiSpan.append(a);
+				a.attr("href", val2.link);
+				a.attr("target", "_blank");
+				a.html(val2.text);
+				if (val2.qrcode) {
+					var qrcodeText = val2.qrcode_text == undefined ? val2.link
+							: val2.qrcode_text;
+					a.attr("onmouseover", "showPic('code','" + qrcodeText
+							+ "',150,150,event);");
+					a.attr("onmouseout", "hiddenPic('code');");
+				}
+				if(val2.desc){
+					var label = $("<label>");
+					label.html(val2.desc);
+					label.addClass("desc");
+					contentDivUlLiSpan.append(label);
+				}
+				if(val2.css){
+					console.log(val2.css);
+					contentDivUlLiSpan.css( "color", "red" );
+				}
+				contentDivUl.append(contentDivUlLi);
+			});
+
+			if (idx == 0) {
+				li.addClass("cur");
+				contentDiv.css("display", "block");
+			}
+			$("#nav-menu").append(li);
+			$("#con").append(contentDiv);
+		});
+	}
+
+	function nav() {
+		var nav = document.getElementById("tab").getElementsByTagName("li");
+		var con = document.getElementById("con").getElementsByTagName("div");
+		for (i = 0; i < nav.length; i++) {
+			nav[i].index = i;
+			nav[i].onmouseover = function() {
+				for ( var n = 0; n < con.length; n++) {
+					con[n].style.display = "none";
+					nav[n].className = "";
+				}
+				con[this.index].style.display = "block"
+				nav[this.index].className = "cur";
+			}
+
+		}
+	}
+
+	$(function() {
+		//createNav();
+		//nav();
+		$.getScript(`./configs/config.js?k=${Math.random()}`, function () {
+			createNav();
+			nav();
+		});
+	});
+</script>
+</head>
+
+<div id="code" style="display:none;position:absolute;z-index:1;"></div>
+
+<body style="padding-left:40px;">
+	<div class="box">
+		<div class="nav" id="tab">
+			<ul id="nav-menu">
+			</ul>
+		</div>
+		<div id="con"></div>
+	</div>
+</body>
+</html>

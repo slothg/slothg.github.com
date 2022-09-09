@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>startapp</title>
+        <script type="text/javascript" src="../libs/clipboard.min.js"></script>
+
+        <script type="text/javascript" src="../libs/Base64.js"></script>
+
+        <script type="text/javascript">
+            var h5Base64Key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-()';
+
+            var regArgs = [21, 21];
+            regArgs = Base64.encode(JSON.stringify(regArgs), h5Base64Key);
+            var schemeUrl = 'a://a?regArgs=' + regArgs;
+
+
+            function copyScheme() {
+                var copyBtnElm = document.getElementById('copyBtnElm');
+                copyBtnElm.setAttribute('data-clipboard-text', schemeUrl);
+
+                var clipboard = new ClipboardJS(copyBtnElm);
+                clipboard.on('success', function(e) {
+                    clipboard.destroy();
+                });
+
+                clipboard.on('error', function(e) {
+                    console.error('Action:', e.action);
+                    console.error('Trigger:', e.trigger);
+
+                    clipboard.destroy();
+                });
+
+                copyBtnElm.click();
+            }
+
+            function startB() {
+                alert('start app\n' + schemeUrl);
+
+
+                window.location.href = schemeUrl;
+            }
+        </script>
+    </head>
+
+    <body>
+        <!-- Trigger data-clipboard-action="cut" data-clipboard-target="#bar" -->
+        <button id="copyBtnElm" data-clipboard-text="" onclick="copyScheme();">
+            复制 scheme
+        </button>
+
+        <input id="start-b" type="button" value="start-b" onclick="startB();" />
+    </body>
+</html>
