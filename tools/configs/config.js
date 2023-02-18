@@ -18,6 +18,10 @@ var conf = [
 				text: "littera",
 				link: "./subpages/littera.html"
 			},
+			{
+				text: "位图字体基础字符",
+				link: "./fntchars.html"
+			},
 		]
 	},
 	{
