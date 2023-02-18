@@ -20,7 +20,7 @@ var conf = [
 			},
 			{
 				text: "位图字体基础字符",
-				link: "./fntchars.html"
+				link: "./subpages/fntchars.html"
 			},
 		]
 	},
