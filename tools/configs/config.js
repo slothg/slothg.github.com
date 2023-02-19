@@ -11,6 +11,10 @@ var conf = [
 				link: "./subpages/ccuuid.html"
 			},
 			{
+				text: "InvoluteSeek",
+				link: "./subpages/InvoluteSeek.html"
+			},
+			{
 				text: "line-easing",
 				link: "./subpages/line-easing.html"
 			},
