@@ -24,8 +24,6 @@
         }
 
         window.onload = () => {
-            console.log('window onload');
-
             let vIndexNum = getCache('index');
             if (!!vIndexNum) {
                 document.getElementById('vIndexNum').value = vIndexNum;
@@ -49,6 +47,16 @@
             let vfmtPropVal = getCache('vfmtPropVal');
             if (!!vfmtPropVal) {
                 document.getElementById('vfmtPropVal').value = vfmtPropVal;
+            }
+
+            let valueType = getCache('valueType');
+            if (!!valueType) {
+                let valueTypeEles = document.getElementsByName('valueType');
+                for (let i = 0, ilen = valueTypeEles.length;i < ilen;i++) {
+                    if (valueTypeEles[i].value === valueType) {
+                        valueTypeEles[i].checked = true;
+                    }
+                }
             }
 
             runGeneral();
@@ -77,14 +85,49 @@
             vfmtPropVal = vfmtPropVal.split(',');
             setCache('vfmtPropVal', vfmtPropVal);
 
+            // 赋值格式
+            let valueType = 'custom';
+            let valueTypeEles = document.getElementsByName('valueType');
+            for (let i = 0, ilen = valueTypeEles.length;i < ilen;i++) {
+                if (valueTypeEles[i].checked) {
+                    valueType = valueTypeEles[i].value;
+                }
+            }
+            setCache('valueType', valueType);
+
+            if (valueType === 'uv') {
+
+            } else if (valueType === 'atlasUVOffset') {
+                vfmtPropVal = [
+                    'uv[0]',
+                    'uv[5]',
+                    'uv[6]',
+                    'uv[3]',
+                ]
+            } else if (valueType === 'color') {
+                vfmtPropVal = [
+                    'colorR',
+                    'colorG',
+                    'colorB',
+                    'colorA',
+                ]
+            }
+
             let str = '';
 
             str += `// ${vfmtFloatStride} * i + ${(new Array(vfmtPropSize).fill(vfmtPropOffset).map((v, idx) => v + idx)).join('|')}\n`;
 
+            let count = 0;
             for (let i = 0; i < vIndexNum; i++) {
                 for (let j = 0; j < vfmtPropSize; j++) {
                     let index = i * vfmtFloatStride + vfmtPropOffset + j;
-                    str += `vData[${index}] = ${vfmtPropVal[j]};\n`;
+                    if (valueType === 'uv') {
+                        str += `vData[${index}] = uv[${count}];\n`;
+                    } else {
+                        str += `vData[${index}] = ${vfmtPropVal[j]};\n`;
+                    }
+
+                    count++;
                 }
             }
 
@@ -112,6 +155,17 @@
     <dd>
         vfmt 数据分量设置的值，以 , 分割
         <input type="text" id="vfmtPropVal" value="x,y,z,w" />
+    </dd>
+    <dd>
+        赋值格式
+        <input type="radio" name="valueType" value="custom" checked />
+        <label for="valueType">自定义</label>
+        <input type="radio" name="valueType" value="uv" />
+        <label for="valueType">UV</label>
+        <input type="radio" name="valueType" value="atlasUVOffset" />
+        <label for="valueType">图集UV偏移</label>
+        <input type="radio" name="valueType" value="color" />
+        <label for="valueType">Color值</label>
     </dd>
     <dd>
         <button id="run" onclick="runGeneral();">生成</button>
