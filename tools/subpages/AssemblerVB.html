@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>AssemblerVB</title>
+
+    <script type="text/javascript">
+        function clampf(value, min_inclusive, max_inclusive) {
+            if (min_inclusive > max_inclusive) {
+                const temp = min_inclusive;
+                min_inclusive = max_inclusive;
+                max_inclusive = temp;
+            }
+            return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+        }
+
+        function getCache(key) {
+            return localStorage.getItem(`__assemblerVB_${key}_`);
+        }
+
+        function setCache(key, value) {
+            return localStorage.setItem(`__assemblerVB_${key}_`, '' + value);
+        }
+
+        window.onload = () => {
+            console.log('window onload');
+
+            let vIndexNum = getCache('index');
+            if (!!vIndexNum) {
+                document.getElementById('vIndexNum').value = vIndexNum;
+            }
+
+            let vfmtFloatStride = getCache('vfmtFloatStride');
+            if (!!vfmtFloatStride) {
+                document.getElementById('vfmtFloatStride').value = vfmtFloatStride;
+            }
+
+            let vfmtPropOffset = getCache('vfmtPropOffset');
+            if (!!vfmtPropOffset) {
+                document.getElementById('vfmtPropOffset').value = vfmtPropOffset;
+            }
+
+            let vfmtPropSize = getCache('vfmtPropSize');
+            if (!!vfmtPropSize) {
+                document.getElementById('vfmtPropSize').value = vfmtPropSize;
+            }
+
+            let vfmtPropVal = getCache('vfmtPropVal');
+            if (!!vfmtPropVal) {
+                document.getElementById('vfmtPropVal').value = vfmtPropVal;
+            }
+
+            runGeneral();
+        }
+
+        function runGeneral() {
+            let vIndexNum = document.getElementById('vIndexNum').value;
+            vIndexNum = parseInt(vIndexNum, 10);
+            setCache('index', vIndexNum);
+
+            let vfmtFloatStride = document.getElementById('vfmtFloatStride').value;
+            vfmtFloatStride = parseInt(vfmtFloatStride, 10);
+            setCache('vfmtFloatStride', vfmtFloatStride);
+
+            let vfmtPropOffset = document.getElementById('vfmtPropOffset').value;
+            vfmtPropOffset = parseInt(vfmtPropOffset, 10);
+            vfmtPropOffset = clampf(vfmtPropOffset, 0, vfmtFloatStride - 1);
+            setCache('vfmtPropOffset', vfmtPropOffset);
+
+            let vfmtPropSize = document.getElementById('vfmtPropSize').value;
+            vfmtPropSize = parseInt(vfmtPropSize, 10);
+            vfmtPropSize = clampf(vfmtPropSize, 1, 4);
+            setCache('vfmtPropSize', vfmtPropSize);
+
+            let vfmtPropVal = document.getElementById('vfmtPropVal').value;
+            vfmtPropVal = vfmtPropVal.split(',');
+            setCache('vfmtPropVal', vfmtPropVal);
+
+            let str = '';
+
+            str += `// ${vfmtFloatStride} * i + ${(new Array(vfmtPropSize).fill(vfmtPropOffset).map((v, idx) => v + idx)).join('|')}\n`;
+
+            for (let i = 0; i < vIndexNum; i++) {
+                for (let j = 0; j < vfmtPropSize; j++) {
+                    let index = i * vfmtFloatStride + vfmtPropOffset + j;
+                    str += `vData[${index}] = ${vfmtPropVal[j]};\n`;
+                }
+            }
+
+            document.getElementById('outtxt').value = str;
+        }
+    </script>
+</head>
+
+<body>
+    <dl>
+        <dt>AssemblerVB VData填充</dt>
+    </dl>
+    <dd>
+        顶点数量（默认4）
+        <input type="text" id="vIndexNum" value="4" />
+        vfmt顶点格式大小 floatStride
+        <input type="text" id="vfmtFloatStride" value="9">
+    </dd>
+    <dd>
+        vfmt 属性偏移值
+        <input type="text" id="vfmtPropOffset" value="0" />
+        vfmt 属性数据占用数量
+        <input type="text" id="vfmtPropSize" value="1" />默认1，最大4
+    </dd>
+    <dd>
+        vfmt 数据分量设置的值，以 , 分割
+        <input type="text" id="vfmtPropVal" value="x,y,z,w" />
+    </dd>
+    <dd>
+        <button id="run" onclick="runGeneral();">生成</button>
+    </dd>
+    <dd>
+        <textarea id="outtxt" style="width:500px; height:600px;"></textarea>
+        </a>
+        <textarea style="width:500px; height:600px;">
+Example:
+// 16 * i + 3|4
+vData[3] = uv[0];
+vData[4] = uv[1];
+vData[19] = uv[2];
+vData[20] = uv[3];
+vData[35] = uv[4];
+vData[36] = uv[5];
+vData[51] = uv[6];
+vData[52] = uv[7];
+        </textarea>
+    </dd>
+</body>
+
+</html>
