@@ -30,6 +30,10 @@ var conf = [
                 text: '位图字体基础字符',
                 link: './subpages/fntchars.html',
             },
+            {
+                text: 'Bit Mask Visualizer',
+                link: './subpages/Bit Mask Visualizer.html',
+            },
         ],
     },
     {
