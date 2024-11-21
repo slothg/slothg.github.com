@@ -92,7 +92,7 @@
 			div#masterCanvasHolder{width:80%;border:0px solid #cccccc;overflow:auto;padding:0px;position:relative;background:#cccccc;text-align:center;}
 				canvas#gridCanvas{width:1024px;height:1024px;background-color;#dddddd;background:transparent;position:absolute;top:0px;left:0px;z-index:20; margin:20px 0px 0px 20px ;}
 				canvas#textureCanvas{width:1024px;height:1024px;background-color;#dddddd;background-color:transparent;position:absolute;top:0px;left:0px;z-index:10;border:0px solid #333333;margin:20px 0px 0px 20px ; text-align:center;}		
-				canvas#backgroundCanvas{width:1024px;height:1024px;background-color;#dddddd;background-image:url('../../img/alphabg.png');position:absolute;top:0px;left:0px;z-index:5;border:1px solid #333333;margin:20px 0px 0px 20px ; text-align:center;background-size:15px;}		
+				canvas#backgroundCanvas{width:1024px;height:1024px;background-color;#dddddd;background-image:url('./img/alphabg.png');position:absolute;top:0px;left:0px;z-index:5;border:1px solid #333333;margin:20px 0px 0px 20px ; text-align:center;background-size:15px;}		
 				
 			div#zoomPanel{top:0px; left:0px;  border:0px solid #333333; padding:5px; margin:20px; background:transparent;z-index:110; text-align:left; position: -webkit-sticky; 
 			position: sticky; width:20%;}
