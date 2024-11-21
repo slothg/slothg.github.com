@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+
+<head>
+	<title>tile sheet creator</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Bulk image resizing tool , batch resize sprites , images and  photos">
+	<meta name="keywords"
+		content="bulk resize, batch resize, bulk image, bulk image resizing tool, rescale, image rescaling tool">
+	<meta name="author" content="game developer studio.com">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<link rel='stylesheet' href='/css/stylesheetv-14.css' type='text/css' />
+	<link rel='stylesheet' href='/css/animate.css' type='text/css' />
+
+
+	<link rel='stylesheet' href='tile_sheet_creator.css' type='text/css' />
+
+	<script type="text/javascript" src="../js/jszip.min.js"></script>
+	<link rel="icon" type="image/png" href="../../img/ico.png" />
+	<script src='canvas.js' type='text/javascript'></script>
+	<script src='grid.js' type='text/javascript'></script>
+	<script src='background_image.js' type='text/javascript'></script>
+
+	<style>
+	</style>
+</head>
+
+
+<body>
+	<script>var URL_BASE = "";</script>
+	<div id='topBar'>
+	</div>
+
+	<div id='navBar'>
+
+	</div>
+
+	<script>
+		var x = document.getElementById('topBar').offsetHeight;
+		document.getElementById('navBar').style.top = x + "px";
+		var y = x + 35;
+	</script>
+
+	<div id='masterWrapper' style="margin-top:102px;">
+		<!-- menu selection panel select buttons-->
+		<div id='menuSelectHolder' class='fullHeight' style="">
+			<div class='menuSelectButton' id='setup' onclick="togglePanel('setup')" style='background-color:#2FAA96'>
+				<img src='img/setup.png' />
+				<p>设置</p>
+			</div>
+			<div class='menuSelectButton' id='palette' onclick="togglePanel('palette')">
+				<img src='img/palette.png' />
+				<p>Tiles</p>
+			</div>
+			<div class='menuSelectButton' id='background' onclick="togglePanel('background')">
+				<img src='img/import.png' />
+				<p>导入</p>
+			</div>
+			<!-- <div class='menuSelectButton' id='tilesets' onclick="togglePanel('tilesets')">
+				<img src='img/tilesets.png' />
+				<p>tile sets</p>
+			</div> -->
+			<div class='menuSelectButton' id='hotkeys' onclick="togglePanel('hotkeys')">
+				<img src='img/hotkeys.png' />
+				<p>热键</p>
+			</div>
+			<div class='menuSelectButton' id='export' onclick="togglePanel('export')">
+				<img src='img/export.png' />
+				<p>导出</p>
+			</div>
+			<!-- <div class='menuSelectButton' id='about' onclick="togglePanel('about')">
+				<img src='img/about.png' />
+				<p>关于</p>
+			</div> -->
+		</div>
+
+
+
+
+
+		<!-- control panels -->
+		<div id='masterToolHolder' class='fullHeight'>
+			<!-- tile sheet configuration -->
+
+			<div id='setupPanel' class='masterToolPanel scrollBar' style='display:block;z-index:60;'>
+				<h1>设置</h1>
+
+				<h2>Tile sheet</h2>
+				<p>设置平铺表。 您可以随时更改这些设置。</p>
+
+				<div id='textureDataHolder' class='toolBarBox'>
+					<p class='header'>最大纹理大小:</p>
+					<p class='noMargin'>width <input id='userInputTextureWidth' type='number' value='1024'
+							class='number' /> Height <input id='userInputTextureHeight' type='number' value='1024'
+							class='number' /> pixels</p>
+
+				</div>
+
+				<!--TILE DATA INPUT-->
+				<div id='tileDataHolder' class='toolBarBox'>
+					<p class='header'>Tile 尺寸</p>
+
+
+					<p class='noMargin'><input type='radio' value="fixed" name='tileDimensionsSelect' checked
+							onclick="changeTileDimensionConfig(this);" />强制更改尺寸</p>
+
+					<p class='noMargin' style='display:block;opacity:0.2;' id='userTileSelect'> width <input
+							type='number' value='128' class='number' id='userInputTileWidth' /> Height <input
+							type='number' value='128' class='number' id='userInputTileHeight' /> px</p>
+
+					<p class='noMargin'><input type='radio' value="auto" name='tileDimensionsSelect' checked="checked"
+							onclick="changeTileDimensionConfig(this);" />使用上传的 tile 尺寸</p>
+				</div>
+
+
+				<!--GRID DATA INPUT-->
+				<div id='gridSetHolder' class='toolBarBox'>
+
+					<p class='header'>网格设置</p>
+					<p class='noMargin'> <b>X </b><input type='number' value=128 id='userInputGridX' class='number' />px
+						<b> Y </b><input type='number' value=128 class='number' id='userInputGridY' />px &nbsp; &nbsp;
+						<input type="color" id='userInputGridColor'>
+					</p>
+
+
+					<div id='gridOffSetSetter' style='display:none;'>
+						<p>offset x <input type='number' value=0 class='number' /></p>
+						<p>offset y<input type='number' value=0 class='number' /></p>
+					</div>
+				</div>
+
+				<!--UPLOAD BUTTON-->
+
+			</div>
+
+
+
+			<div id='palettePanel' class='masterToolPanel scrollBar' style='display:none;z-index:50;'>
+				<!--UPLOAD BUTTON-->
+				<div id='uploadButtonHolder' class='toolBarBox' style='margin-top:2em; border: 1px dashed #a89b9b;'>
+					<label for="userFilesInput" class="uploadButton" id='uploadFileLabel'
+						style='display:block;'>将tile添加到调色板</label>
+					<input id='userFilesInput' style='display:none' accept='image/*' type='file' multiple />
+				</div>
+
+
+				<p><input type='checkbox' checked="checked" onchange='toggleOverwrite(this.checked)' />覆盖放置的tile</p>
+				<!--TILE PREVIEW-->
+
+
+				<p class="noMargin" style="text-align:right;padding:2.5%;">
+					<img onclick='togglePaletteView("LIST")' src="img/list_view.png" style="height:20px;" />
+					<img onclick='togglePaletteView("BLOCK")' src="img/grid_view.png" style="height:20px;" />
+				</p>
+				<div id='paletteTileContainer' class='scrollBar'></div>
+
+				<!--TEXTUTE DATA INPUT-->
+
+				<p>
+					<button id='autoPlace' class='button' style='padding:1em;'
+						onclick="recallAllTiles()">召回放置的tiles</button>
+
+			</div>
+
+
+			<div id='backgroundPanel' class='masterToolPanel scrollBar' style='display:block;z-index:40;'>
+				<h1>加载背景 tile sheet</h1>
+				<p>您可以导入现有的平铺页图像并将其设置为背景图像。然后您可以继续开发它并添加更多的瓦片。</p>
+
+				<div id='' class='toolBarBox' style='margin-top:2em;'>
+					<label for="addBackgroundInputFile" class="uploadButton" id='backgroundLabelElement'
+						style='display:block;'>添加背景tilesheet</label>
+					<input id='addBackgroundInputFile' style='display:none' accept='image/*' type='file'>
+				</div>
+
+				<div id='textureDataHolder' class='toolBarBox'>
+					<p class='header'>背景位置:</p>
+					<p class='noMargin'>X
+						<input id='userInputBackgroundPositionX' type='number' value='0' class='number'
+							onchange="changeBackgroundPosition()" /> Y
+						<input id='userInputBackgroundPositionY' type='number' value='0' class='number'
+							onchange="changeBackgroundPosition()" /> pixels
+					</p>
+					<p>背景位于左上角。确保将背景与当前网格对齐。</p>
+					<p><input type='checkbox' checked="checked"
+							onchange='toggleExportBackground(this.checked)' />使用平铺表导出背景</p>
+				</div>
+
+
+
+
+				<div id='importBox' class='toolBarBox' style='border:1px solid #dddddd;opacity:.4;'>
+					<h2>Import as tiles</h2>
+					<button id='backgroundImportButton' class='button' style='padding:.5em;background-color:#cccccc;'
+						onclick="importBackgroundAsTiles()">剪切并导入背景作为tiles</button>
+
+
+					<div id='importCutData'>
+						<p><input type='checkbox' checked="checked"
+								onchange='toggleBackgroundCutType(this.checked)' />将平铺剪切位当前网格大小</p>
+						<p id='setCutDimentions' class='header' style='opacity:0.3'>设置切割尺寸<br />
+							<input id='userInputBackgroundCutSizeX' type='number' value='128' class='number'
+								onchange="changeBackgroundCutSize()" /> width
+							<input id='userInputBackgroundCutSizeY' type='number' value='128' class='number'
+								onchange="changeBackgroundCutSize()" /> height
+						</p>
+						<p class='noMargin'><input type='checkbox' checked="checked"
+								onchange='toggleImportSmoothing(this.checked)' />应用平滑 (取消选中像素艺术)
+						</p>
+						<p class='noMargin'><input type='checkbox' checked="checked"
+								onchange='togglePlaceExportedTiles(this.checked)' />将导入的瓷砖放置在瓷砖表上
+						</p>
+						<p class='noMargin'><input type='checkbox' checked="checked"
+								onchange='toggleAutoRemoveBlankTiles(this.checked)' />自动删除空磁贴</p>
+
+					</div>
+				</div>
+
+
+				<div id='' class='toolBarBox'>
+					<button id='backgroundRemoveButton' class='button'
+						style='padding:.2em;background-color:#cccccc;margin-top:20px;'
+						onclick="deleteBackground()">删除背景</button>
+				</div>
+
+			</div>
+
+
+			<!--TILESETS PANEL-->
+			<!-- <div id='tilesetsPanel' class='masterToolPanel scrollBar' style='display:none;z-index:30;'>
+				<h1 style="font-size:1.5em;">Enjoying this tool?</h1>
+				<p>If you're enjoying this tool and would like to support me, Instead of donating or patreon, you could
+					purchase some of my artwork, all my game assets come with a commercial usage license.</p>
+
+				<div id='thumbnailHolder' class="scrollBar">
+					<a href='https://www.gamedeveloperstudio.com' class='button'
+						style="width:75%; padding:15px 0px;text-align:center;margin-top:20px;" target=blank>
+						View more game assets
+
+					</a>
+					<p class="noMargin" style='margin-bottom:30px;'>click safe: Link opens in new tab</p>
+
+				</div>
+
+			</div> -->
+
+
+			<!--HOT KEYS PANEL-->
+			<div id='hotkeysPanel' class='masterToolPanel scrollBar' style='display:none;z-index:20;'>
+				<h1>热键功能</h1>
+				<p>使用键盘访问更多功能</p>
+
+				<p class="hotkeyExplain">clone: C+drag</p>
+				<p>按住键盘上的“c”键，然后拖动以创建放置的互动程序的克隆。</p>
+
+				<p class="hotkeyExplain">Remove: E+left click</p>
+				<p>按住键盘上的“e”键，然后用鼠标左键单击以从平铺页中删除平铺。</p>
+
+				<p class="hotkeyExplain">flip Horizontal: H+left click</p>
+				<p>按住键盘上的“h”键，然后左键单击鼠标以水平翻转平铺页上的平铺。</p>
+
+				<p class="hotkeyExplain">flip vertical: V+left click</p>
+				<p>按住键盘上的“v”键，然后左键单击一个互动程序以垂直翻转它。</p>
+
+				<p class="hotkeyExplain">zoom in: +</p>
+				<p>按键盘上的“+”键放大。</p>
+
+				<p class="hotkeyExplain">zoom out: -</p>
+				<p>按键盘上的“-”键缩小。</p>
+
+			</div>
+
+			<!--ABOUT PANEL-->
+			<!-- <div id='aboutPanel' class='masterToolPanel scrollBar' style='display:none;z-index:5;'>
+				<h1>About</h1>
+				<p class="header">Tile sheet creator V-1.1</p>
+				<p>release date- may 5th 2021</p>
+				<p>For bug reports please contact me
+					via social media or email.</p>
+				<p>Copyright 2021 - Robert Brooks - www.gamedeveloperstudio.com</p>
+				<p class="header">Upcoming fixes</p>
+				<p class="noMargin">touch screen controls</p>
+				<p class="noMargin">cell numbering</p>
+				<p class="noMargin">background cut and import in</p>
+				<p class="noMargin">functions tool bar</p>
+			</div>
+ -->
+
+
+
+			<div id='exportPanel' class='masterToolPanel scrollBar' style='display:none;z-index:10;'>
+				<!--UPLOAD BUTTON-->
+				<h2>Export tile sheet</h2>
+				<p class='noMargin'>
+					<input type='radio' value="AUTO" name='trim' checked="checked"
+						onclick="changeExportTrimConfig(this.value)" />修剪未使用的瓷砖区域。<br />
+					<input type='radio' value="FIXED" name='trim' onclick="changeExportTrimConfig(this.value)" />保持最大尺寸
+				</p>
+
+
+				<p><input type='checkbox' value="auto" name='smoothing' checked="checked"
+						onchange="toogleSmoothing(this.checked)" /> 应用平滑-（关闭像素艺术）<br />
+
+				<p class='header'>tile sheet name</p>
+				<p><input type='text' id='fileName' value='tileSheet_tileSize_64px_by_64px.png'
+						onInput="updateTileSheetName(this.value)" /></p>
+				<button onclick='exportTilesheet()' id='exportButton'>Export tilesheet</button>
+				<a href='unknown.png' style='display:none' id="downloadLink" download="unknown.png"
+					onclick="this.style.display='none';"> Download </a>
+			</div>
+
+
+		</div>
+
+
+
+		<div id='masterCanvasHolder' class='fullHeight scrollBar'>
+			<div id="zoomPanel">
+				<p class="zoomButton" onclick="zoom('OUT')"> - </p>
+				<p id="zoomPercent"> 100%</p>
+				<p class="zoomButton" onclick="zoom('IN')"> + </p>
+			</div>
+
+			<canvas id='backgroundCanvas' style='display:block;' width=1024 height=1024></canvas>
+			<canvas id='textureCanvas' style='display:block;' width=1024 height=1024></canvas>
+			<canvas id='gridCanvas' style='display:block;' width=1024 height=1024></canvas>
+		</div>
+
+		<!-- dialogs -->
+		<!--save dialog-->
+
+	</div>
+
+
+	<div id='pageContent' style='width:80%;margin:50px auto;'>
+		<h1>Tile sheet creator</h1>
+		<p>Welcome to the gamedeveloperstudio live tile sheet creator, a quick flexible tool for setting up tile sheets
+		</p>
+		<p>These days most game engines come with extensive tools for creating tile maps but there are few tools
+			available which will help you to create the base tile sheets from which your tile maps are
+			made.<i>[hyperbole]</i> Use this tool to set your tile sheets faster than it takes photo shop to load.
+			<i>[/hyperbole]</i>
+		</p>
+		<p>This tile sheet creator is a tile sheet creation tool which will help you easily generate tile sheet atlas
+			textures. Tile sheet creator lets you upload tiles from mulitple locations and tile sets, render tile sizes
+			on the fly and organise tile locations on the sheet with snap-to tile placement so you will never misalign
+			your tiles again. The simple drag and drop functionailty of tile sheeter will make creating your tile sheets
+			a breeze.</p>
+
+
+		<ul>
+			<li>Works in local so no waiting on upload and download times.</li>
+			<li>Fast and flexible with invert and clone functions.</li>
+			<li>Avoid confusion! tile sheet creator hides positioned tiles.</li>
+			<li>Resize your tiles on the fly.</li>
+			<li>Background layer allows you to extend any tile sheet.</li>
+			<li>Exports high quality seamless tilesheets.</li>
+			<li>Simple and efective</li>
+		</ul>
+
+
+
+
+		<h1>The Basics</h1>
+		<div class="docItem">
+			<p class='title'>Step one: Dimensions</p>
+			<p><b>Set up your dimensions.</b> How big would your like your tile sheet to be?. At what size do you wish
+				to draw your tiles? </p>
+		</div>
+
+		<div class="docItem">
+			<p class='title'>Step two: Add some tiles</p>
+			<p>Add individual tiles to the palette then drag and drop them onto your sheet. You can add tiles at any
+				time, if you're adding multiple tile sets to the same tile sheet it's useful to add one set before
+				adding the next set tiles to the palette.</p>
+		</div>
+
+		<div class="docItem">
+			<p class='title'>Step three: Export</p>
+			<p>Once you have positioned all your tiles onto the tilesheet you're ready to export. If you don't care
+				about the size of the sheet you tile sheet creator will trim unused area. otherwise don't forget to set
+				keep dimentions.</p>
+		</div>
+
+
+		<h1>Tile sheet creator advanced functions</h1>
+
+		<div class="docItem">
+			<p class="title">setting tile sheet size</p>
+
+			<p>Tile sheet size represents the area where you can position your tiles. If you don't know how much space
+				you need before creating your tile set you can set your tile sheet to a much larger size than you expect
+				neccessary. later you can trim any unused area from the completed tile sheet. If you run out of space
+				whilst creating your tile sheet you can change the area at any time during the creation process.</p>
+		</div>
+
+		<div class="docItem">
+			<p class="title">Setting tile dimensions</p>
+			<p>Tile dimensions refer to the the size at which you would like to draw your tiles on the tile sheet. Tiles
+				can be drawn at any size you wish. If you are importing tiles at 256 pixels by 256 pixels you can set
+				the tile size to 128 pixels by 128 pixels and tile sheet creator will automatically resize the tiles on
+				the canvas for you. Tiles don't have to be square, You can set your target tile size height and width
+				dimensions to any size. It's worth noting that if you draw your tiles at a large size than the tile
+				images natural size you will lose resolution quality. </p>
+
+			<p>You can also set this to use uploaded tile size. but you will manually have to set the grid to that size
+				or you will get unexpected results when setting your tiles.</p>
+		</div>
+
+
+
+
+		<div class="docItem">
+			<p class="title">Setting grid size</p>
+			<p>be positioned relative to this grid so it's important that the grid is set to the current size of your
+				tiles.</p>
+		</div>
+
+
+
+
+		<div class="docItem">
+			<p class="title">Adding an existing tile sheet</p>
+			<p>You can extend and develop an existing tile sheet by importing it as a background image and setting it'sX
+				and Y coordinated accordingly. You can then place tiles over the top of the background image. When you
+				export the tile sheet, the background image will also be exported.</p>
+		</div>
+
+
+
+
+
+		<div class="docItem">
+			<p class="title">Adding tiles</p>
+			<p>You can add tiles to the project by opening the palette panel from the left hand menu. Select the "add
+				tiles button" and navigate to your tiles. Once added the tiles will appear in the palette panel</p>
+
+			<p>The defualt view of tiles on the palette panel is thumbnail view. Sometimes it can be difficult to see
+				which tile is which via the thumbnail view. you can switch to list view using the view change icons at
+				the top right of the panel. List view will display the tile's file name, natural dimensions and file
+				type.</p>
+		</div>
+
+
+
+
+
+		<div class="docItem">
+			<p class="title">Removing tiles from the palette</p>
+			<p>If you have uploaded a tile to the palette that you no longer wish to use you can use the bin icon under
+				the palette thumbnail to remove the tile from the project. Please note that removig a tile from the
+				project will alos remove the tile from the tile sheet.</p>
+		</div>
+
+
+		<div class="docItem">
+			<p class="title">Positioning a tile</p>
+			<p>You can position a tile on the tile sheet by simply dragging it from the palette to the tile sheet area.
+				To avoid confusion an to let you know which tiles have been set on the sheet tile sheet creator will
+				hide placed tiles from the palette. This hand feature will allow you to avoid skipping or omiting tiles.
+				If you really need a tile to appear twice on your tile sheet see the clone feature.</p>
+		</div>
+
+
+
+
+
+		<div class="docItem">
+			<p class="title">Overwriting tiles</p>
+			<p>When you drag a tile onto the canvas there's a chance you could accidently drop it onto an already
+				positioned tile. You can decide what you would like tile sheet creator to do in this instance. You can
+				allow the tile to be over written or you can block tile overwriting. Use the "over write placed tiles"
+				check box to configure this functionality. If you do overwirte a positioned tile and there are no other
+				copies of this tile on the tile sheet, Tile sheet creator will return the overwritten tile to the
+				palette to placed again.</p>
+		</div>
+
+
+		<div class="docItem">
+			<p class="title">Removing placed tiles</p>
+			<p>You can removed placed tiles by simply dragging the tile off the tile sheet area or back onto the
+				palette. You can also hold down the E key on the keyboard and click on the placed tile you wish to
+				remove. This hot key feature is handy if you wish to remove a lot of tiles.</p>
+		</div>
+
+
+
+
+
+		<div class="docItem">
+			<p class="title">Recalling tiles</p>
+			<p>If you're not happy with your progress you can use the recall all tiles button this will recall all
+				placed tiles from the tile sheet to your palette. If you have a significant amount of tiles already
+				placed you will be prompted by the browser alert to confirm that you wish to proceeed with the action.
+			</p>
+		</div>
+
+
+
+
+		<div class="docItem">
+			<p class="title">Cloning placed tiles</p>
+			<p>If you need a tile to appear on your tile sheet more than once you can clone an already placed tile by
+				holding the "c" key on the keyboard and dragging the placed tile you would like to clone.</p>
+		</div>
+
+
+
+
+
+		<div class="docItem">
+			<p class="title">Inverting tiles</p>
+			<p>If your tile sheet comes without flipped versions you can flip invert tiles on the tile sheet
+				horizontally and vertically. Hold the "h" key on the keyboard and click the the placed tile you would
+				like to invert horizontally. To flip vertically you hold the "v" key on the keyboard and click on the
+				placed tile you would like to invert vertically.</p>
+		</div>
+
+
+
+
+		<div class="docItem">
+			<p class="title">Zooming in and out</p>
+			<p>ISometimes when working with small tile sheets it can be difficult to see which tile is which. Tile sheet
+				creator has zoom functionality allowing you to work with both big tiles and small tile s a like. To zoom
+				in and out use the + and - keys on the keyboard repectively. You can also use the zoom control panel on
+				the the top left of the canvas area.</p>
+		</div>
+
+
+
+		<div class="docItem">
+			<p class="title">Exporting</p>
+			<p>Once you have set up your tilesheet to your liking you select the export button on the left hand menu. By
+				defualt tile sheet creator will trim unused tilesheet area saving you memory when importing your atlas
+				into your project. If you wish to maintain a set texture size you can select "maintain max dimentions".
+			</p>
+			<p> You can also set the name of your tilesheet. It's probably worth appending the defualt grid size to the
+				file name in case you wish to import the tile sheet later.</p>
+		</div>
+
+		<div class="docItem">
+			<p>If you like this little tool I'd love to know! Let me know on any of my social media platforms!</p>
+		</div>
+
+
+	</div>
+
+
+
+
+	<div id='footer'>
+
+	</div>
+	<script>
+		/*TO DO*/
+		//change grid to forced tile dimensions
+		//change grid to uploaded tile dimensions
+		//export image
+		//messages and warnings
+		//tilesheet metadata
+		//inverting x
+		//inverting y
+
+		//selecting multiple tiles and
+		//translating mulitple tiles
+
+		// bug when not replacing a tile
+		// drag from canvas
+
+
+
+		//usersettings
+		var TILESHEETNAME = "tile_sheet_128px_by_128px";
+		var WARN_FOR_TILE_REPLACE = true; // sets alert when user tries to place a tile in an already filled grid
+		var OVERWRITE_POSITIONED_TILES = true;
+		var SMOOTHING = true;
+		var AUTOTRIM = true;
+		var TEXTURE_WIDTH = 1024;
+		var TEXTURE_HEIGHT = 1024;
+		var FORCE_TILE_RESIZE = false;
+		var USER_TILE_HEIGHT = 128;
+		var USER_TILE_WIDTH = 128;
+		var PLACED_TILES_PREVIEW_STATUS = "HIDE";// hide - fade  - nothing
+		var ISCLONING = false;
+		var ISDELETING = false;
+		var ISSELECTING = false;
+		var ISKEYDOWN = false;
+		var ISINVERTINGX = false;
+		var ISINVERTINGY = false;
+		var PALETTEVIEW = "BLOCK"; // LIST, BLOCK
+		var ZOOMLEVEL = 100;
+
+		//user state
+		var DRAGGING_FROM_CANVAS = false;
+		var CLONING_FROM_CANVAS = false;
+		var DRAGGED_CANVAS_TILE_INDEX = 0;
+		var DRAGGING = false;
+		var PANNING = false;
+		var DRAG_ID = "";
+		var DRAGGED_TILE;
+		//needed for when draggin
+		var DRAGGED_TILE_DIMENSIONS = { x: 64, y: 64 };
+		var DRAGGED_TILE_OFFSET = { x: 64, y: 64 };
+		var DRAGGED_TILE_INVERT_X = false;
+		var DRAGGED_TILE_INVERT_Y = false;
+		var tiles = new Array(); // Tiles are images
+
+
+
+		//grab reference to elements on the page
+		var masterWrapper = document.getElementById('masterWrapper');
+		var masterRect = masterWrapper.getBoundingClientRect();
+		var masterOffsetX = masterRect.x;
+		var masterOffsetY = masterRect.y;
+
+
+		var uploadButtonHolderElem = document.getElementById('uploadButtonHolder');
+		var uploadLableElement = document.getElementById('uploadFileLabel');
+		var userFilesInputField = document.getElementById('userFilesInput');
+		var addBackgroundInputField = document.getElementById('addBackgroundInputFile');
+		var backgroundLabelElement = document.getElementById('backgroundLabelElement');
+		var paletteTileContainer = document.getElementById('paletteTileContainer');
+
+		var masterCanvasHolder = document.getElementById("masterCanvasHolder");
+		var textureCanvas = document.getElementById("textureCanvas");
+		var textureCtx = textureCanvas.getContext("2d");
+		var gridCanvas = document.getElementById("gridCanvas");
+		var gridCtx = gridCanvas.getContext("2d");
+		var backgroundCanvas = document.getElementById("backgroundCanvas");
+		var backgroundCtx = backgroundCanvas.getContext("2d");
+
+
+
+		var userInputGridX = document.getElementById('userInputGridX');
+		var userInputGridY = document.getElementById('userInputGridY');
+		var userInputGridColor = document.getElementById('userInputGridColor');
+		var userInputTextureWidth = document.getElementById('userInputTextureWidth');
+		var userInputTextureHeight = document.getElementById('userInputTextureHeight');
+
+		var userTileSelect = document.getElementById('userTileSelect');
+		var userInputTileHeight = document.getElementById('userInputTileHeight');
+		var userInputTileWidth = document.getElementById('userInputTileWidth');
+		var nameHolder = document.getElementById("fileName");
+
+		//add event listeners
+
+		masterWrapper.addEventListener('mousemove', function (evnt) { dragTile(evnt) });
+		masterCanvasHolder.addEventListener('mousedown', function (evnt) { startCanvasAction(evnt) });
+
+
+		window.addEventListener('mouseup', function (evnt) { dropTile(evnt) });
+		window.addEventListener('keydown', function (evnt) { if (ISKEYDOWN === false) { keyDownControl(evnt); } });
+		window.addEventListener('keyup', function (evnt) { keyUpControl(evnt); });
+
+		userInputTextureWidth.addEventListener('change', function (evnt) { changeTextureSize() });
+		userInputTextureHeight.addEventListener('change', function (evnt) { changeTextureSize() });
+
+		// 拖拽上传事件
+		function handleDropEvent(event) {
+			// 阻止事件的默认行为
+			event.preventDefault();
+			if (event.type === 'drop') {
+				// 文件进入并松开鼠标,文件边框恢复正常
+				uploadButtonHolderElem.style.borderColor = '#a89b9b';
+				console.log('拖动事件', event);
+				// 文件数组
+				let fileArr = [];
+				// for (let file of event.dataTransfer.files) {
+				// 	// 把文件保存到文件数组中
+				// 	fileArr.push(file)
+				// }
+				for (let file of event.dataTransfer.items) {
+					// 把文件保存到文件数组中
+					fileArr.push(file.getAsFile());
+				}
+				console.log('拖动文件', fileArr);
+				addFiles(fileArr);
+			} else if (event.type === 'dragleave') {
+				// 离开时边框恢复
+				uploadButtonHolderElem.style.borderColor = '#a89b9b';
+			} else {
+				// 进入边框变为红色
+				uploadButtonHolderElem.style.borderColor = 'red';
+			}
+		}
+
+		// 拖拽事件绑定
+		uploadButtonHolderElem.addEventListener("dragenter", handleDropEvent);
+		uploadButtonHolderElem.addEventListener("dragover", handleDropEvent);
+		uploadButtonHolderElem.addEventListener("drop", handleDropEvent);
+		uploadButtonHolderElem.addEventListener("dragleave", handleDropEvent);
+
+		userFilesInputField.addEventListener('change', function (evnt) { 
+			// console.log('选择文件', userFilesInputField.files);
+			addFiles(userFilesInputField.files) 
+		});
+		addBackgroundInputField.addEventListener('change', function (evnt) { addBackgroundFile(evnt) });
+
+
+		userInputGridX.addEventListener('change', function (evnt) { changeGridSize() });
+		userInputGridY.addEventListener('change', function (evnt) { changeGridSize() });
+		userInputGridColor.addEventListener('change', function (evnt) { changeGridColor(evnt) });
+
+		userInputTileHeight.addEventListener('change', function (evnt) { changeUserSelectedTileDimensions() });
+		userInputTileWidth.addEventListener('change', function (evnt) { changeUserSelectedTileDimensions() });
+
+		//update any reset values
+
+
+
+
+
+		//objects and object holders
+
+		var grid = new Grid(gridCanvas, gridCtx);
+		var canvas = new Canvas(textureCanvas, textureCtx);
+		var backgroundImage = new BackgroundImage(backgroundCanvas, backgroundCtx);
+		grid.drawGrid();
+
+		var zip = new JSZip();//creates zippable object
+		var byteTotal = 0;
+
+
+
+		//set up page layout
+		let wrapperHeight = window.innerHeight - 150;
+		let wrapperTop = parseInt(document.getElementById("topBar").offsetHeight);
+		wrapperTop += parseInt(document.getElementById("navBar").offsetHeight);
+		console.log("TOP" + wrapperTop);
+		masterWrapper.style.marginTop = wrapperTop + "px";
+		masterWrapper.style.height = wrapperHeight + "px";
+		window.scrollTo(0, 0);
+		nameHolder.value = TILESHEETNAME;
+
+
+
+
+		function startDrag(id, event) {
+			//console.log("starting tile drag");
+			// dragiging tru
+			DRAGGING = true;
+			DRAG_ID = id;
+			event.preventDefault();
+			//create a tile element under the mouse
+			generateDragTile(id, event)
+			//fade the chosen tile element
+			document.getElementById('tilePreview' + id).style.opacity = 0.3;
+			//append draggable clone
+			masterWrapper.appendChild(DRAGGED_TILE);
+
+		}
+
+
+		function generateDragTile(id, event) {
+			//console.log("generating tile");
+			let width;
+			let height;
+			var tileData = getTileById(id);
+			//get tile height
+			if (FORCE_TILE_RESIZE) {
+				width = USER_TILE_WIDTH;
+				height = USER_TILE_HEIGHT;
+			}
+			else {
+
+				if (tileData) {
+					width = tileData.naturalWidth;
+					height = tileData.naturalHeight;
+				}
+				else {
+					width = USER_TILE_WIDTH;
+					height = USER_TILE_HEIGHT;
+				}
+			}
+			//save dimensions as not to look them up everytime onmouse move called when dragging
+			DRAGGED_TILE_DIMENSIONS.x = width;
+			DRAGGED_TILE_DIMENSIONS.y = height;
+			//let determine offset value no need to calculate every onmove
+			DRAGGED_TILE_OFFSET.x = masterOffsetX + (width / 2);
+			DRAGGED_TILE_OFFSET.y = masterOffsetY + (height / 2);
+
+			var x = event.pageX - DRAGGED_TILE_OFFSET.x;
+			var y = event.pageY - DRAGGED_TILE_OFFSET.y;
+
+
+			//console.log("tile width "+width);
+			//lets create the tile
+			DRAGGED_TILE = document.createElement("img");
+			DRAGGED_TILE.setAttribute("class", "dragged_image");
+			DRAGGED_TILE.setAttribute("id", "dragged" + id);
+			DRAGGED_TILE.setAttribute("src", tileData.src);
+			DRAGGED_TILE.style.width = DRAGGED_TILE_DIMENSIONS.x + "px";
+			DRAGGED_TILE.style.height = DRAGGED_TILE_DIMENSIONS.y + "px";
+			DRAGGED_TILE.style.top = y + "px";
+			DRAGGED_TILE.style.left = x + "px";
+			if (DRAGGED_TILE_INVERT_X) {
+				DRAGGED_TILE.style.transform = "scaleX(-1)";
+			}
+			if (DRAGGED_TILE_INVERT_Y) {
+				DRAGGED_TILE.style.transform = "scaleY(-1)";
+			}
+		}
+
+
+		function dragTile(event) {
+			if (DRAGGING) {
+				//console.log("dragging");
+				var x = event.pageX - DRAGGED_TILE_OFFSET.x;
+				var y = event.pageY - DRAGGED_TILE_OFFSET.y;
+				DRAGGED_TILE.style.top = y + "px";
+				DRAGGED_TILE.style.left = x + "px";
+			}
+
+			if (PANNING) {
+				//console.log("panning");
+				var x = event.pageX - DRAGGED_TILE_OFFSET.x;
+				var y = event.pageY - DRAGGED_TILE_OFFSET.y;
+				masterCanvasHolder.scrollTop = masterCanvasHolder.scrollTop + 10;
+			}
+
+		}
+
+
+
+
+		//dragTileFromCanvas
+		function startCanvasAction(event) {
+
+			//console.log("action detected  on canvas");
+			//canvas.getCanvasBoxCollider();//set up canvas bounding box
+			//was this action on the scroll bar?
+			if (canvas.actionDetect(event) === false) {/*console.log("action on scroll bar or off canvas")*/; return false; }
+
+			let canvasCoords = canvas.getCanvasCoords(event.pageX, event.pageY);// get canvas coords relative to canvas
+			let existingTileIndex = canvas.isTileHere(canvasCoords.x, canvasCoords.y);
+			//if theres a tile under the drag start delete it and create a new dragging tile != false because can be zero
+			if (existingTileIndex !== false) {
+
+				let tileId = canvas.tilesOncanvas[existingTileIndex].tileId
+				if (canvas.tilesOncanvas[existingTileIndex].invertX === true) { DRAGGED_TILE_INVERT_X = true; }
+				if (canvas.tilesOncanvas[existingTileIndex].invertY === true) { DRAGGED_TILE_INVERT_Y = true; }
+
+				if (ISDELETING) {
+					canvas.removeTileByIndex(parseInt(existingTileIndex));//remove first or replace palette will find it
+					replacePaletteTile(tileId);
+					return false;
+				}
+
+				else if (ISSELECTING) {
+					/* TO DO*/
+				}
+
+				else if (ISINVERTINGX) {
+					canvas.toggleXInversion(existingTileIndex);
+					canvas.clearTileArea(existingTileIndex);
+					canvas.drawTile(existingTileIndex);
+				}
+				else if (ISINVERTINGY) {
+
+					canvas.toggleYInversion(existingTileIndex);
+					canvas.clearTileArea(existingTileIndex);
+					canvas.drawTile(existingTileIndex);
+				}
+
+				else if (ISCLONING) {
+					CLONING_FROM_CANVAS = true;
+					DRAGGED_CANVAS_TILE_INDEX = existingTileIndex;
+					startDrag(tileId, event);
+				}
+
+				//we're going to be dragging normally(repositioning)
+				else {
+					//console.log("dragging normally");
+					DRAGGING_FROM_CANVAS = true;
+					DRAGGED_CANVAS_TILE_INDEX = existingTileIndex;
+					canvas.tilesOncanvas[existingTileIndex].opacity = 0.6;
+					canvas.clearTileArea(existingTileIndex);
+					canvas.drawTile(existingTileIndex);
+					startDrag(tileId, event);
+					//only delete if not cloning
+					//setTimeout(function(){ canvas.removeTileByIndex(parseInt(existingTileIndex)); }, 10);
+
+				}
+			}
+
+			//drag not started on canvas
+			else {
+				PANNING = false; //set to true to allow panning
+			}
+		}
+
+
+		//called by windo mouse up everytime- tile can be dropped anywhere in the window
+		function dropTile(event) {
+			if (DRAGGING) {
+				//was tile dropped on canvas this function also sets bounding box coords
+				if (canvas.actionDetect(event)) {
+
+					let canvasCoords = canvas.getCanvasCoords(event.pageX, event.pageY); //get coords relative to canvas
+					let gridData = canvas.getGridPointData(canvasCoords.x, canvasCoords.y); //translate those coords to canvas grid data
+					let draggedTile = getTileById(DRAG_ID); // get the info
+					let newTile = canvas.createTileObject(draggedTile, gridData.drawX, gridData.drawY)//create a new tile object
+
+					//check if there is a tile there
+					let occupantTileIndex = canvas.isTileHere(canvasCoords.x, canvasCoords.y);
+
+
+					//EXISTING TILE IN SPACE
+					if (occupantTileIndex !== false) { // !==false because the occupant tile index could be 0
+						let occupantTileId = canvas.tilesOncanvas[occupantTileIndex].tileId;
+						let occupantTileCanvasId = canvas.tilesOncanvas[occupantTileIndex].onCanvasId;
+						//if we can't over write tiles
+						if (OVERWRITE_POSITIONED_TILES === false) {
+							//console.log("DENIED - ocupied cell");
+							//if it's a clone destroy it
+							if (CLONING_FROM_CANVAS !== false) {
+								//console.log("attempted to drag a cloned tile to an occupied postion");
+							}
+							//if it's dragged from canvas return it to it's place and destoy dragged tile
+							else if (DRAGGING_FROM_CANVAS !== false) {
+								//console.log("attempted to reposition a tile to an occupied postion" + DRAGGED_CANVAS_TILE_INDEX);
+								//console.log(canvas.tilesOncanvas);
+								canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].opacity = 1;
+								canvas.clearTileArea(DRAGGED_CANVAS_TILE_INDEX);
+								canvas.drawTile(DRAGGED_CANVAS_TILE_INDEX);
+							}
+							//else we're just dragging from palette
+							else {
+								//console.log("attempted to drag a tile from the palette to an occupied postion.");
+							}
+
+						}
+
+						//there is an existing tile but we can over write it
+						else if (OVERWRITE_POSITIONED_TILES === true) {
+
+							//console.log("replacing existing tile");
+							//modifying the array causes errors in existing tile index
+
+							canvas.clearTileArea(occupantTileIndex);
+
+
+							if (CLONING_FROM_CANVAS) {
+								//console.log("tile cloned - successful overwrite");
+								canvas.cloneTile(DRAGGED_CANVAS_TILE_INDEX, gridData.drawX, gridData.drawY);
+								canvas.drawTile(canvas.tilesOncanvas.length - 1);
+								canvas.tilesOncanvas.splice(occupantTileIndex, 1);//remove first or replace palette will find it
+								replacePaletteTile(occupantTileId);
+							}
+							//if it's dragged from canvas return it to it's place and destoy dragged tile
+							else if (DRAGGING_FROM_CANVAS) {
+								//delete the old tile
+								//console.log("Tile on canvas repostion - successful overwrite." + DRAGGED_CANVAS_TILE_INDEX + occupantTileIndex);
+								//console.log(canvas.tilesOncanvas);
+
+								canvas.clearTileArea(DRAGGED_CANVAS_TILE_INDEX);//clear where dragged tile was
+								canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].drawX = gridData.drawX;
+								canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].drawY = gridData.drawY;
+								canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].opacity = 1;
+								canvas.drawTile(DRAGGED_CANVAS_TILE_INDEX);
+								if (occupantTileIndex !== DRAGGED_CANVAS_TILE_INDEX) {
+									canvas.tilesOncanvas.splice(occupantTileIndex, 1);//remove first or replace palette will find it
+									replacePaletteTile(occupantTileId);
+								}
+							}
+							//dragging from palette
+							else {
+								//console.log("tile from palette - successful overwrite.");
+								canvas.tilesOncanvas.push(newTile);
+								canvas.drawTile(canvas.tilesOncanvas.length - 1);
+								hidePaletteTile(newTile.tileId);
+								canvas.tilesOncanvas.splice(occupantTileIndex, 1);//remove first or replace palette will find it
+								replacePaletteTile(occupantTileId);
+							}
+
+							//now completely remove tile that was in the space
+
+
+
+						}
+
+					}
+
+					//NO EXISTING TILE IN SPACE
+					else {
+						if (CLONING_FROM_CANVAS !== false) {
+							//console.log("tile cloned to available cell");
+							canvas.cloneTile(DRAGGED_CANVAS_TILE_INDEX, gridData.drawX, gridData.drawY);
+							canvas.drawTile(canvas.tilesOncanvas.length - 1);
+							//console.log(canvas.tilesOncanvas);
+						}
+						//if it's dragged from canvas return it to it's place and destoy dragged tile
+						else if (DRAGGING_FROM_CANVAS !== false) {
+							//delete the old tile
+							//console.log("Tile on canvas successful reposition in available cell.");
+							canvas.clearTileArea(DRAGGED_CANVAS_TILE_INDEX);
+							canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].drawX = gridData.drawX;
+							canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].drawY = gridData.drawY;
+							canvas.tilesOncanvas[DRAGGED_CANVAS_TILE_INDEX].opacity = 1;
+							canvas.drawTile(DRAGGED_CANVAS_TILE_INDEX);
+						}
+						//dragging from palette
+						else {
+							//console.log("tile from palette positioned in available cell.");
+							canvas.tilesOncanvas.push(newTile);
+							canvas.drawTile(canvas.tilesOncanvas.length - 1);
+							hidePaletteTile(newTile.tileId);
+						}
+
+					}
+				}
+				//tile was not dropped on canvas
+				else {
+					//do we need to replace this tile in the palette
+					replacePaletteTile(DRAG_ID);
+					if (DRAGGING_FROM_CANVAS) {
+						//console.log("Tile was removed from canvas.");
+						canvas.removeTileByIndex(parseInt(DRAGGED_CANVAS_TILE_INDEX));//remove first or replace palette will find it
+						replacePaletteTile(DRAG_ID);
+
+					}
+				}
+
+				// if we were dragging and mouse up do all this
+				removeDraggedTile();
+				DRAGGING = false;
+				DRAGGING_FROM_CANVAS = false;
+				DRAGGED_TILE_INVERT_X = false;
+				DRAGGED_TILE_INVERT_Y = false;
+				CLONING_FROM_CANVAS = false;
+				DRAG_ID = "";
+				DRAGGED_TILE = null;
+
+			}
+
+			if (PANNING) { PANNING = false; }
+
+		}
+
+		function removeDraggedTile() {
+			if (DRAGGING) {
+				//console.log("removing dragged tile");
+				//remove the clone from master
+				masterWrapper.removeChild(DRAGGED_TILE);
+				//set original tile preview opacity back to normal
+				document.getElementById('tilePreview' + DRAG_ID).style.opacity = 1;
+
+			}
+		}
+
+
+		function replacePaletteTile(tileId) {
+			//when a tile is removed from the canvas
+			//do I need to replace the tile in the palete
+			//is there a copy of this tile on the canvas
+			//console.log("testing to reshow palette tile " + tileId);
+			let isStillOnCanvas = false;
+			for (let i = 0; i < canvas.tilesOncanvas.length; i++) {
+				if (canvas.tilesOncanvas[i].tileId === tileId) {
+					//console.log("on canvas test" + canvas.tilesOncanvas[i].tileId);
+					isStillOnCanvas = true;
+					break;
+				}
+			}
+			//console.log(isStillOnCanvas);
+			//if there is no copy of the tile on the canvas
+			if (isStillOnCanvas === false) {
+
+				let palettePreview = document.getElementById('holder' + tileId);
+				palettePreview.style.display = "inline-block";
+				palettePreview.style.opacity = 1;
+			}
+		}
+
+
+		function hidePaletteTile(tileId) {
+			console.log("tile id " + tileId);
+			if (PLACED_TILES_PREVIEW_STATUS === "HIDE") {
+				document.getElementById('holder' + tileId).style.display = "none";
+
+			}
+
+		}
+
+
+		function getTileById(id) {
+			//console.log("searching for tile "+id.toString() );
+			var tile = false;
+			for (var i = 0; i < tiles.length; i++) {
+				if (tiles[i].idString === id) {
+					tile = tiles[i];
+					break;
+				}
+			}
+			return tile;
+		}
+
+
+		function checkDuplicateName() { }
+
+
+		function countImages() {
+			fileCountView.innerHTML = "<big> " + images.length + "</big> images ready for resizing";
+
+		}
+
+		function formatBytes(bytes, decimals = 2) {
+			if (bytes === 0) return '0 Bytes';
+
+			const k = 1024;
+			const dm = decimals < 0 ? 0 : decimals;
+			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+		}
+
+		function message(message) { console.log(message); }
+
+
+		function padNumber(number) {
+			if (number < 10) {
+				number = "00" + number;
+			}
+			else if (number < 100) {
+				number = "0" + number;
+			}
+
+			return number;
+
+		}
+
+	</script>
+
+</body>
+
+</html>
+<script src='user_input.js' type='text/javascript'></script>
+<script src='upload_handler.js' type='text/javascript'></script>

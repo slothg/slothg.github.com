@@ -7,6 +7,10 @@ var conf = [
                 link: './devtools/ckeditor/bbcode.html',
             },
             {
+                text: 'tilesheetcreator',
+                link: './devtools/tilesheetcreator/index.html',
+            },
+            {
                 text: 'CocosCreator 资源 UUID 解析',
                 link: './subpages/ccuuid.html',
             },
